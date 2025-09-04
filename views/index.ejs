@@ -18,34 +18,43 @@
 </head>
 <body class="antialiased">
     <div class="aurora-background"></div>
-    <div class="relative min-h-screen w-full flex flex-col items-center justify-center p-4">
+    <div class="relative min-h-screen w-full flex flex-col items-center justify-center p-4 sm:p-6">
         <main class="w-full max-w-2xl mx-auto flex flex-col items-center text-center">
             <header class="mb-8">
-                <h1 class="text-5xl md:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400">Xplain</h1>
-                <p class="text-slate-400 mt-2 text-lg">Unravel complex topics with the power of AI.</p>
+                <!-- Responsive Font Size: Smaller on mobile, larger on medium screens and up -->
+                <h1 class="text-5xl sm:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400">Xplain</h1>
+                <!-- Responsive Font Size -->
+                <p class="text-slate-400 mt-2 text-base sm:text-lg">Unravel complex topics with the power of AI.</p>
             </header>
             
+            <!-- Responsive Layout: Stacked on mobile, row on small screens and up -->
             <form id="explain-form" action="/explain" method="POST" class="flex flex-col sm:flex-row items-center gap-3 w-full">
                 <div class="relative w-full">
+                    <!-- Responsive Padding and Font Size -->
                     <input type="text" id="topic-input" name="topic" placeholder="e.g., 'The Silk Road'" value="<%= locals.topic ? topic : '' %>"
-                        class="w-full text-lg px-5 py-4 rounded-xl bg-slate-900/80 border border-slate-700 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all duration-300 placeholder-slate-500 backdrop-blur-sm" required>
+                        class="w-full text-base sm:text-lg px-4 sm:px-5 py-3 sm:py-4 rounded-xl bg-slate-900/80 border border-slate-700 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all duration-300 placeholder-slate-500 backdrop-blur-sm" required>
                 </div>
-                <button id="submit-button" type="submit" class="glow-on-hover w-full sm:w-auto shrink-0 px-8 py-4 text-lg font-bold rounded-xl bg-white text-black transition-transform duration-200 ease-out hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                <!-- Responsive Sizing: Full width on mobile, auto-width on small screens and up -->
+                <button id="submit-button" type="submit" class="glow-on-hover w-full sm:w-auto shrink-0 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-bold rounded-xl bg-white text-black transition-transform duration-200 ease-out hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
                     Explain
                 </button>
             </form>
 
             <% if (locals.result) { %>
-            <div id="result-section" class="w-full mt-10">
+            <!-- Responsive Margin-Top -->
+            <div id="result-section" class="w-full mt-8 sm:mt-10">
                 <div class="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-sm overflow-hidden">
+                    <!-- Responsive Padding -->
                     <div class="p-4 sm:p-6 text-left">
                         <div class="flex justify-between items-center mb-4">
-                            <h2 id="result-title" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+                            <!-- Responsive Font Size -->
+                            <h2 id="result-title" class="text-xl sm:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
                                 <%= topic %>
                             </h2>
                             <button id="copy-button" class="shrink-0 text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-medium py-1 px-3 rounded-md transition-all">Copy</button>
                         </div>
-                        <div id="result-text" class="prose prose-invert prose-lg max-w-none text-slate-300 h-96 overflow-y-auto custom-scrollbar pr-4">
+                        <!-- Responsive Text Size and Height -->
+                        <div id="result-text" class="prose prose-invert prose-base sm:prose-lg max-w-none text-slate-300 h-80 sm:h-96 overflow-y-auto custom-scrollbar pr-2 sm:pr-4">
                             <%- result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') %>
                         </div>
                     </div>
@@ -54,7 +63,7 @@
             <% } %>
 
         </main>
-        <footer class="absolute bottom-4 text-center text-slate-600 text-sm">Designed by a World-Class AI.</footer>
+        <footer class="absolute bottom-4 text-center text-slate-600 text-xs sm:text-sm">Designed by a World-Class AI.</footer>
     </div>
 
     <script>
@@ -64,10 +73,7 @@
 
         if (explainForm && submitButton) {
             explainForm.addEventListener('submit', () => {
-                // Disable the button to prevent multiple clicks
                 submitButton.disabled = true;
-
-                // Update the button content to show a loading state
                 submitButton.innerHTML = `
                     <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -102,29 +108,3 @@
 </body>
 </html>
 
-
-
-
-
-
-<!-- 
-
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Topic Explainer</title>
-  </head>
-  <body>
-    <h1>Enter a Topic</h1>
-    <form action="/explain" method="post">
-      <input type="text" name="topic" placeholder="Enter a topic" required />
-      <button type="submit">Explain</button>
-    </form>
-
-    <% if (result) { %>
-      <h2>Explanation:</h2>
-      <p><%= result %></p>
-    <% } %>
-  </body>
-</html> -->
