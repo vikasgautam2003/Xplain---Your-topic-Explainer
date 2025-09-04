@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xplain - AI Topic Explainer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0A0A0A; color: #E2E8F0; }
+        .aurora-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.15; background: radial-gradient(circle at 10% 20%, rgba(126, 5, 255, 0.4), transparent 40%), radial-gradient(circle at 80% 90%, rgba(0, 255, 187, 0.4), transparent 40%), radial-gradient(circle at 50% 50%, rgba(0, 119, 255, 0.3), transparent 40%); animation: aurora-flow 20s infinite linear; }
+        @keyframes aurora-flow { 0% { transform: rotate(0deg) scale(1.2); } 50% { transform: rotate(180deg) scale(1.5); } 100% { transform: rotate(360deg) scale(1.2); } }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; } .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; } .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; } .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+        .glow-on-hover { position: relative; z-index: 1; overflow: hidden; } .glow-on-hover:before { content: ''; position: absolute; z-index: -1; top: -2px; left: -2px; right: -2px; bottom: -2px; background: conic-gradient(from 180deg at 50% 50%, #7E05FF 0deg, #00FFBB 180deg, #7E05FF 360deg); filter: blur(20px); opacity: 0; transition: opacity 0.3s ease-in-out; } .glow-on-hover:hover:before { opacity: 0.6; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="aurora-background"></div>
+    <div class="relative min-h-screen w-full flex flex-col items-center justify-center p-4">
+        <main class="w-full max-w-2xl mx-auto flex flex-col items-center text-center">
+            <header class="mb-8">
+                <h1 class="text-5xl md:text-6xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-100 to-slate-400">Xplain</h1>
+                <p class="text-slate-400 mt-2 text-lg">Unravel complex topics with the power of AI.</p>
+            </header>
+            
+            <form id="explain-form" action="/explain" method="POST" class="flex flex-col sm:flex-row items-center gap-3 w-full">
+                <div class="relative w-full">
+                    <input type="text" id="topic-input" name="topic" placeholder="e.g., 'The Silk Road'" value="<%= locals.topic ? topic : '' %>"
+                        class="w-full text-lg px-5 py-4 rounded-xl bg-slate-900/80 border border-slate-700 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all duration-300 placeholder-slate-500 backdrop-blur-sm" required>
+                </div>
+                <button id="submit-button" type="submit" class="glow-on-hover w-full sm:w-auto shrink-0 px-8 py-4 text-lg font-bold rounded-xl bg-white text-black transition-transform duration-200 ease-out hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+                    Explain
+                </button>
+            </form>
+
+            <% if (locals.result) { %>
+            <div id="result-section" class="w-full mt-10">
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-2xl backdrop-blur-sm overflow-hidden">
+                    <div class="p-4 sm:p-6 text-left">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 id="result-title" class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-cyan-400">
+                                <%= topic %>
+                            </h2>
+                            <button id="copy-button" class="shrink-0 text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 font-medium py-1 px-3 rounded-md transition-all">Copy</button>
+                        </div>
+                        <div id="result-text" class="prose prose-invert prose-lg max-w-none text-slate-300 h-96 overflow-y-auto custom-scrollbar pr-4">
+                            <%- result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+        </main>
+        <footer class="absolute bottom-4 text-center text-slate-600 text-sm">Designed by a World-Class AI.</footer>
+    </div>
+
+    <script>
+        // --- SCRIPT FOR LOADING STATE ---
+        const explainForm = document.getElementById('explain-form');
+        const submitButton = document.getElementById('submit-button');
+
+        if (explainForm && submitButton) {
+            explainForm.addEventListener('submit', () => {
+                // Disable the button to prevent multiple clicks
+                submitButton.disabled = true;
+
+                // Update the button content to show a loading state
+                submitButton.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Thinking...
+                `;
+            });
+        }
+
+        // --- SCRIPT FOR COPY BUTTON ---
+        const copyButton = document.getElementById('copy-button');
+        const resultText = document.getElementById('result-text');
+
+        if (copyButton && resultText) {
+            copyButton.addEventListener('click', () => {
+                const textToCopy = resultText.innerText;
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+
+                copyButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+<!-- 
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Topic Explainer</title>
+  </head>
+  <body>
+    <h1>Enter a Topic</h1>
+    <form action="/explain" method="post">
+      <input type="text" name="topic" placeholder="Enter a topic" required />
+      <button type="submit">Explain</button>
+    </form>
+
+    <% if (result) { %>
+      <h2>Explanation:</h2>
+      <p><%= result %></p>
+    <% } %>
+  </body>
+</html> -->
